@@ -13,6 +13,6 @@ export default function GamePage () {
         notFound();
     }
     return (
-        <GameComponent slug={slug as string} autoSize={true}/>
+        <GameComponent slug={slug as string}/>
     )
 }
