@@ -1,3 +1,5 @@
+"use client";
+
 import styles from './game_card.module.css';
 
 export type GameCardProps = {
