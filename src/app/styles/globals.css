@@ -17,6 +17,12 @@
   --muted-foreground: #a3a3a3;
 
   --border: #262626;
+
+  --accent: #6b41e7;
+  --accent-foreground: #b89fff;
+  --accent-subtle: rgba(140, 100, 255, 0.18);
+  --accent-border: rgba(140, 100, 255, 0.35);
+  --accent-glow: rgba(100, 60, 220, 0.45);
 }
 
 @theme inline {
@@ -33,6 +39,9 @@
   --color-muted-foreground: var(--muted-foreground);
 
   --color-border: var(--border);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
 
   --radius-default: var(--radius);
 
