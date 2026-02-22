@@ -1,4 +1,5 @@
-import Link from 'next/link';
+"use client";
+
 import styles from './game_card.module.css';
 
 export type GameCardProps = {
@@ -7,11 +8,12 @@ export type GameCardProps = {
     players_min: number;
     icon?: string;
     slug: string;
+    onClick: (slug: string) => void;
 }
 
 export default function GameCard(props: GameCardProps) {
     return (
-        <Link href={`/${props.slug}`} className={styles.card}>
+        <div className={styles.card} onClick={() => props.onClick(props.slug)}>
             {props.icon && <span className={styles.icon}>{props.icon}</span>}
             <h2 className={styles.title}>{props.title}</h2>
             <p className={styles.description}>{props.description}</p>
@@ -19,6 +21,6 @@ export default function GameCard(props: GameCardProps) {
                 👥 от {props.players_min} игроков
             </span>
             <button className={styles.button}>Играть</button>
-        </Link>
+        </div>
     );
 }
