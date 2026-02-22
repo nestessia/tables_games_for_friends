@@ -56,52 +56,34 @@ export default function Input({
     const [inputValue, setInputValue] = useState<number | "">("");
     const [error, setError] = useState<string | null>(null);
 
-    const handleSubmit = () => {
-        if (inputValue === "") {
-            setError("Введите значение");
-        } else if (inputValue < min) {
-            setError(`Минимальное значение: ${min}`);
-        } else {
-            setError(null);
-            onChange(String(inputValue));
-        }
-    };
-
     return (
         <div className={`flex flex-col`}>
-            <div className="relative flex items-center">
-                <input
-                    type={type}
-                    className={`${variantClasses[variant]} ${sizeClasses[size]} ${className} w-full rounded-xl pr-12`}
-                    placeholder={placeholder}
-                    value={inputValue}
-                    min={min}
-                    max={max}
-                    step={step}
-                    disabled={disabled}
-                    onChange={(e) => {
-                        const val = e.target.value;
-                        setInputValue(val === "" ? "" : Number(val));
-                    }}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleSubmit();
+            <input
+                type={type}
+                className={`${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+                placeholder={placeholder}
+                value={inputValue}
+                min={min}
+                max={max}
+                step={step}
+                disabled={disabled}
+                onChange={(e) => {
+                    const val = e.target.value;
+                    setInputValue(val === "" ? "" : Number(val));
+                }}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        if (inputValue === "") {
+                            setError("Введите значение");
+                        } else if (inputValue < min) {
+                            setError(`Минимальное значение: ${min}`);
+                        } else {
+                            setError(null);
+                            onChange(String(inputValue));
                         }
-                    }}
-                />
-                <button
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={disabled}
-                    className="absolute right-2 flex items-center justify-center w-8 h-8 rounded-lg bg-[rgba(140,100,255,0.2)] hover:bg-[rgba(140,100,255,0.4)] active:bg-[rgba(140,100,255,0.55)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                    aria-label="Подтвердить"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b89fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                </button>
-            </div>
+                    }
+                }}
+            />
             {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
         </div>
     );
