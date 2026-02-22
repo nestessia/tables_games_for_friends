@@ -1,18 +1,9 @@
-"use client";
-
 import { notFound } from "next/navigation";
-import { getGameBySlug, GameComponents } from "@/lib/games";
-import { useParams } from "next/navigation";
-import { useMemo } from "react";
+import { getGameBySlug, getGameComponent } from "@/lib/games";
 
-export default function GamePage () {
-    const { slug } = useParams();
-    const game = getGameBySlug(slug as string);
-    const GameComponent = useMemo(() => GameComponents(slug as string), [slug]);
-    if (!game) {
-        notFound();
-    }
-    return (
-        <GameComponent slug={slug as string}/>
-    )
+export default async function GamePage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    if (!getGameBySlug(slug)) notFound();
+    const GameComponent = getGameComponent(slug);
+    return <GameComponent slug={slug} />;
 }

@@ -1,0 +1,23 @@
+.track {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  scroll-snap-align: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+  transform: scale(0.9);
+  opacity: 0.5;
+  filter: blur(0.5px);
+}
+
+.itemActive {
+  transform: scale(1);
+  opacity: 1;
+  filter: none;
+}

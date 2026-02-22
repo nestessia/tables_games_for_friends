@@ -38,14 +38,12 @@ export function getGameBySlug(slug: string): Game | undefined {
 }
 
 
-const gameImports: Record<string, () => Promise<{ default: ComponentType<{ slug: string }> }>> = {
-    spy: () => import('@/components/games/spy'),
-    mafia: () => import('@/components/games/mafia'),
-    imagination: () => import('@/components/games/imagination'),
+const gameComponents: Record<string, ComponentType<{ slug: string }>> = {
+    spy: dynamic(() => import('@/components/games/spy')),
+    mafia: dynamic(() => import('@/components/games/mafia')),
+    imagination: dynamic(() => import('@/components/games/imagination')),
 };
 
-export const GameComponents = (slug: string): ComponentType<{ slug: string }> => {
-    const importer = gameImports[slug];
-    if (!importer) return dynamic(() => import('@/components/games/spy'));
-    return dynamic<{ slug: string }>(importer);
+export function getGameComponent(slug: string): ComponentType<{ slug: string }> {
+    return gameComponents[slug] ?? gameComponents['spy'];
 }

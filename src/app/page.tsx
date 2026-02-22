@@ -1,12 +1,5 @@
-import GameCard from "@/components/game_card";
-import { games } from "@/lib/games";
+import Slider from "@/components/slider";
 
 export default function DashboardPage() {
-    return (
-        <>
-        <ul>
-            {games.map((game) => <li key={game.title}><GameCard {...game} /></li>)}
-        </ul>
-        </>
-    )
+    return <Slider />;
 }

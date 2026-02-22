@@ -5,8 +5,7 @@ import Input from "@/components/input";
 import { useState, useEffect } from "react";
 import { games } from "@/lib/games";
 import { spyLocations } from "@/lib/spy_locations";
-
-const STORAGE_KEY = "spy_game_state";
+import Link from "next/link";
 
 export default function Spy ({slug}: {slug: string}) {
     const [playersCount, setPlayersCount] = useState<number | null>(null);
@@ -14,27 +13,7 @@ export default function Spy ({slug}: {slug: string}) {
     const [roles, setRoles] = useState<string[]>([]);
     const [timeLeft, setTimeLeft] = useState<number | null>(null);
     const [isRoleRevealed, setIsRoleRevealed] = useState(false);
-    const [hydrated, setHydrated] = useState(false);
     const min_players = games.find(game => game.slug === slug)?.players_min;
-
-    useEffect(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            if (parsed.timeLeft > 0) {
-                setPlayersCount(parsed.playersCount);
-                setLocation(parsed.location);
-                setRoles(parsed.roles);
-                setTimeLeft(parsed.timeLeft);
-            }
-        }
-        setHydrated(true);
-    }, []);
-
-    useEffect(() => {
-        if (!hydrated) return;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ playersCount, location, roles, timeLeft }));
-    }, [hydrated, playersCount, location, roles, timeLeft]);
 
     const handeLocationGeneration = () => {
         const randomLocation = spyLocations[Object.keys(spyLocations)[Math.floor(Math.random() * Object.keys(spyLocations).length)]];
@@ -90,6 +69,16 @@ export default function Spy ({slug}: {slug: string}) {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center px-4">
             <div className="w-full max-w-md flex flex-col items-center gap-8">
+
+                <Link
+                    href="/"
+                    className="self-start flex items-center gap-2 px-4 py-2 rounded-xl bg-[rgba(140,100,255,0.08)] border border-[rgba(140,100,255,0.2)] text-[rgba(184,159,255,0.7)] text-sm font-medium hover:bg-[rgba(140,100,255,0.18)] hover:border-[rgba(140,100,255,0.5)] hover:text-[#b89fff] transition-all duration-200 group"
+                >
+                    <svg className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Все игры
+                </Link>
 
                 <div className="text-center">
                     <div className="text-6xl mb-3">🕵️</div>
