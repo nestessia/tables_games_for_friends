@@ -10,24 +10,28 @@ const STORAGE_KEY = "spy_game_state";
 
 export default function Spy ({slug}: {slug: string}) {
     const [playersCount, setPlayersCount] = useState<number | null>(() => {
+        if (typeof window === 'undefined') return null;
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) return null;
         const parsed = JSON.parse(saved);
         return parsed.timeLeft > 0 ? parsed.playersCount : null;
     });
     const [location, setLocation] = useState<string | null>(() => {
+        if (typeof window === 'undefined') return null;
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) return null;
         const parsed = JSON.parse(saved);
         return parsed.timeLeft > 0 ? parsed.location : null;
     });
     const [roles, setRoles] = useState<string[]>(() => {
+        if (typeof window === 'undefined') return [];
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) return [];
         const parsed = JSON.parse(saved);
         return parsed.timeLeft > 0 ? parsed.roles : [];
     });
     const [timeLeft, setTimeLeft] = useState<number | null>(() => {
+        if (typeof window === 'undefined') return null;
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) return null;
         const parsed = JSON.parse(saved);
