@@ -17,7 +17,7 @@ export default async function RootLayout(props: {
   return (
     <html lang="ru">
       <body>
-            {props.children}
+        {props.children}
       </body>
     </html>
   );
