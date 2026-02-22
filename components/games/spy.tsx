@@ -9,40 +9,32 @@ import { spyLocations } from "@/lib/spy_locations";
 const STORAGE_KEY = "spy_game_state";
 
 export default function Spy ({slug}: {slug: string}) {
-    const [playersCount, setPlayersCount] = useState<number | null>(() => {
-        if (typeof window === 'undefined') return null;
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return null;
-        const parsed = JSON.parse(saved);
-        return parsed.timeLeft > 0 ? parsed.playersCount : null;
-    });
-    const [location, setLocation] = useState<string | null>(() => {
-        if (typeof window === 'undefined') return null;
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return null;
-        const parsed = JSON.parse(saved);
-        return parsed.timeLeft > 0 ? parsed.location : null;
-    });
-    const [roles, setRoles] = useState<string[]>(() => {
-        if (typeof window === 'undefined') return [];
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return [];
-        const parsed = JSON.parse(saved);
-        return parsed.timeLeft > 0 ? parsed.roles : [];
-    });
-    const [timeLeft, setTimeLeft] = useState<number | null>(() => {
-        if (typeof window === 'undefined') return null;
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return null;
-        const parsed = JSON.parse(saved);
-        return parsed.timeLeft > 0 ? parsed.timeLeft : null;
-    });
+    const [playersCount, setPlayersCount] = useState<number | null>(null);
+    const [location, setLocation] = useState<string | null>(null);
+    const [roles, setRoles] = useState<string[]>([]);
+    const [timeLeft, setTimeLeft] = useState<number | null>(null);
     const [isRoleRevealed, setIsRoleRevealed] = useState(false);
+    const [hydrated, setHydrated] = useState(false);
     const min_players = games.find(game => game.slug === slug)?.players_min;
 
     useEffect(() => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed.timeLeft > 0) {
+                setPlayersCount(parsed.playersCount);
+                setLocation(parsed.location);
+                setRoles(parsed.roles);
+                setTimeLeft(parsed.timeLeft);
+            }
+        }
+        setHydrated(true);
+    }, []);
+
+    useEffect(() => {
+        if (!hydrated) return;
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ playersCount, location, roles, timeLeft }));
-    }, [playersCount, location, roles, timeLeft]);
+    }, [hydrated, playersCount, location, roles, timeLeft]);
 
     const handeLocationGeneration = () => {
         const randomLocation = spyLocations[Object.keys(spyLocations)[Math.floor(Math.random() * Object.keys(spyLocations).length)]];
@@ -81,7 +73,6 @@ export default function Spy ({slug}: {slug: string}) {
     }
 
     const handleReset = () => {
-        localStorage.removeItem(STORAGE_KEY);
         setPlayersCount(null);
         setLocation(null);
         setRoles([]);
