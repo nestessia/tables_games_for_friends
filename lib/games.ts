@@ -18,6 +18,13 @@ export const games: Game[] = [
         slug: "spy",
     },
     {
+        title: "Alias",
+        description: "Объясняй как можно больше слов и зарабатывай очки!",
+        players_min: 2,
+        icon: "💬",
+        slug: "alias",
+    },
+    {
         title: "Имаджинариум",
         description: "Угадай карточку по ассоциации ведущего и придумай свою.",
         players_min: 2,
@@ -42,6 +49,7 @@ const gameComponents: Record<string, ComponentType<{ slug: string }>> = {
     spy: dynamic(() => import('@/components/games/spy')),
     mafia: dynamic(() => import('@/components/games/mafia')),
     imagination: dynamic(() => import('@/components/games/imagination')),
+    alias: dynamic(() => import('@/components/games/alias')),
 };
 
 export function getGameComponent(slug: string): ComponentType<{ slug: string }> {

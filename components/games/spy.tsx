@@ -82,13 +82,13 @@ export default function Spy ({slug}: {slug: string}) {
 
                 <div className="text-center">
                     <div className="text-6xl mb-3">🕵️</div>
-                    <h1 className="text-4xl font-bold text-[#e0e0f0]">Шпион</h1>
-                    <p className="text-[rgba(184,159,255,0.6)] mt-1 text-sm">Найди шпиона среди своих</p>
+                    <h1 className="text-4xl font-bold text-accent-light">Шпион</h1>
+                    <p className="text-accent-muted mt-1 text-sm">Найди шпиона среди своих</p>
                 </div>
 
                 {!playersCount && (
                     <div className="w-full bg-[rgba(30,30,46,0.7)] border border-[rgba(140,100,255,0.2)] rounded-2xl p-6 flex flex-col gap-4">
-                        <p className="text-[#e0e0f0] text-center text-lg">Сколько игроков?</p>
+                        <p className="text-accent-light text-center text-lg">Сколько игроков?</p>
                         <p className="text-[rgba(184,159,255,0.5)] text-center text-sm">Минимум {min_players} игрока</p>
                         <Input
                             placeholder={`От ${min_players} и больше`}
@@ -102,7 +102,7 @@ export default function Spy ({slug}: {slug: string}) {
 
                 {playersCount && !location && (
                     <div className="w-full bg-[rgba(30,30,46,0.7)] border border-[rgba(140,100,255,0.2)] rounded-2xl p-6 flex flex-col items-center gap-4">
-                        <p className="text-[#e0e0f0] text-center">
+                        <p className="text-accent-light text-center">
                             Игроков: <span className="text-[#b89fff] font-bold">{playersCount}</span>
                         </p>
                         <p className="text-[rgba(184,159,255,0.5)] text-sm text-center">Нажми, чтобы раздать роли и начать игру</p>
@@ -116,7 +116,7 @@ export default function Spy ({slug}: {slug: string}) {
                 {location && roles.length > 0 && (
                     <div className="w-full flex flex-col items-center gap-4">
                         <div className="w-full bg-[rgba(30,30,46,0.7)] border border-[rgba(140,100,255,0.2)] rounded-2xl p-6 flex flex-col items-center gap-2">
-                            <p className="text-[rgba(184,159,255,0.6)] text-sm uppercase tracking-widest">Игрок {currentPlayer} из {playersCount}</p>
+                            <p className="text-accent-muted text-sm uppercase tracking-widest">Игрок {currentPlayer} из {playersCount}</p>
 
                             {!isRoleRevealed ? (
                                 <button
@@ -154,7 +154,7 @@ export default function Spy ({slug}: {slug: string}) {
                 {location && roles.length === 0 && (
                     <div className="w-full flex flex-col items-center gap-4">
                         <div className="w-full bg-[rgba(30,30,46,0.7)] border border-[rgba(140,100,255,0.2)] rounded-2xl p-6 flex flex-col items-center gap-4">
-                            <p className="text-[#e0e0f0] font-semibold text-lg text-center">Все роли розданы — игра началась!</p>
+                            <p className="text-accent-light font-semibold text-lg text-center">Все роли розданы — игра началась!</p>
                             <div className={`text-6xl font-mono font-bold tabular-nums transition-colors ${timerDanger ? "text-red-400" : "text-[#b89fff]"}`}>
                                 {minutes}:{seconds}
                             </div>
@@ -170,7 +170,7 @@ export default function Spy ({slug}: {slug: string}) {
                     <div className="w-full bg-[rgba(30,30,46,0.7)] border border-[rgba(220,80,80,0.3)] rounded-2xl p-6 flex flex-col items-center gap-4">
                         <span className="text-5xl">⏰</span>
                         <p className="text-red-400 font-bold text-xl text-center">Время вышло!</p>
-                        <p className="text-[rgba(184,159,255,0.6)] text-sm text-center">Голосуйте — кто шпион?</p>
+                        <p className="text-accent-muted text-sm text-center">Голосуйте — кто шпион?</p>
                         <Button text="Начать заново" size="lg" onClick={handleReset} className="w-full"/>
                     </div>
                 )}

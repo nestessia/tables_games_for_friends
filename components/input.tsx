@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 export type InputVariant = "primary" | "secondary";
 export type InputSize = "sm" | "md" | "lg";
 
@@ -11,15 +11,16 @@ export type InputProps = {
     size?: InputSize;
     type?: "text" | "number";
     disabled?: boolean;
-    min: number;
+    min?: number;
     max?: number;
     step?: number;
+    value?: string;
     onChange: (value: string) => void;
 }
 
 const variantClasses: Record<InputVariant, string> = {
     primary: [
-        "bg-[rgba(30,30,46,0.9)] text-[#e0e0f0]",
+        "bg-[rgba(30,30,46,0.9)] text-accent-light",
         "border border-[rgba(140,100,255,0.4)]",
         "placeholder:text-[rgba(184,159,255,0.4)]",
         "focus:border-[rgba(140,100,255,0.75)] focus:shadow-[0_0_0_3px_rgba(100,60,220,0.25)]",
@@ -51,10 +52,15 @@ export default function Input({
     min,
     max,
     step,
+    value,
     onChange,
 }: InputProps) {
-    const [inputValue, setInputValue] = useState<number | "">("");
+    const [inputValue, setInputValue] = useState<string>(value ?? "");
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (value !== undefined) setInputValue(value);
+    }, [value]);
 
     return (
         <div className={`flex flex-col`}>
@@ -68,18 +74,20 @@ export default function Input({
                 step={step}
                 disabled={disabled}
                 onChange={(e) => {
-                    const val = e.target.value;
-                    setInputValue(val === "" ? "" : Number(val));
+                    setInputValue(e.target.value);
+                    if (type === "text") {
+                        onChange(e.target.value);
+                    }
                 }}
                 onKeyDown={(e) => {
                     if (e.key === "Enter") {
                         if (inputValue === "") {
                             setError("Введите значение");
-                        } else if (inputValue < min) {
+                        } else if (type === "number" && min !== undefined && Number(inputValue) < min) {
                             setError(`Минимальное значение: ${min}`);
                         } else {
                             setError(null);
-                            onChange(String(inputValue));
+                            onChange(inputValue);
                         }
                     }
                 }}

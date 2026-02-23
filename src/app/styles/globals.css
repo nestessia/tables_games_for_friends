@@ -23,6 +23,8 @@
   --accent-subtle: rgba(140, 100, 255, 0.18);
   --accent-border: rgba(140, 100, 255, 0.35);
   --accent-glow: rgba(100, 60, 220, 0.45);
+  --accent-muted: rgba(184, 159, 255, 0.6);
+  --accent-light: #e0e0f0;
 }
 
 @theme inline {
@@ -42,6 +44,10 @@
 
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-accent-border: var(--accent-border);
+  --color-accent-muted: var(--accent-muted);
+  --color-accent-light: var(--accent-light);
 
   --radius-default: var(--radius);
 
