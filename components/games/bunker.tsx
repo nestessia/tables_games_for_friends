@@ -573,7 +573,6 @@ export default function Bunker({ slug }: { slug: string }) {
                                                 }`}
                                             >
                                                 {isOut ? "☠️" : <span className="text-[11px] text-center leading-tight px-0.5 truncate w-full">{players[i]}</span>}
-                                                {!isOut && hasRevealed && <span className="text-[8px] leading-none opacity-70">👁</span>}
                                             </button>
                                         );
                                     })}
