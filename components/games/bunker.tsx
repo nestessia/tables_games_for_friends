@@ -123,14 +123,15 @@ function InteractiveCardRow({ icon, label, value, accent = false, revealed, onTo
 type CharacterCardProps = {
     card: PlayerCard;
     playerNum: number;
+    playerName?: string;
 };
 
-function CharacterCard({ card, playerNum }: CharacterCardProps) {
+function CharacterCard({ card, playerNum, playerName }: CharacterCardProps) {
     return (
         <div className="w-full flex flex-col gap-2">
             <div className="flex items-center justify-between px-1 mb-1">
                 <p className="text-[rgba(184,159,255,0.5)] text-xs uppercase tracking-widest">
-                    Карточка игрока {playerNum}
+                    {playerName ?? `Игрок ${playerNum}`}
                 </p>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-[rgba(140,100,255,0.15)] text-[#b89fff] border border-[rgba(140,100,255,0.3)]">
                     {card.gender} · {card.age} лет
@@ -154,16 +155,17 @@ function CharacterCard({ card, playerNum }: CharacterCardProps) {
 type InteractiveCharacterCardProps = {
     card: PlayerCard;
     playerNum: number;
+    playerName?: string;
     revealed: RevealedFields;
     onToggle: (field: keyof RevealedFields) => void;
 };
 
-function InteractiveCharacterCard({ card, playerNum, revealed, onToggle }: InteractiveCharacterCardProps) {
+function InteractiveCharacterCard({ card, playerNum, playerName, revealed, onToggle }: InteractiveCharacterCardProps) {
     return (
         <div className="w-full flex flex-col gap-2">
             <div className="flex items-center justify-between px-1 mb-1">
                 <p className="text-[rgba(184,159,255,0.5)] text-xs uppercase tracking-widest">
-                    Игрок {playerNum} — твоя карточка
+                    {playerName ?? `Игрок ${playerNum}`} — твоя карточка
                 </p>
             </div>
             <p className="text-[rgba(184,159,255,0.45)] text-xs text-center pb-1">
@@ -198,9 +200,10 @@ type PublicBoardProps = {
     cards: PlayerCard[];
     revealed: RevealedFields[];
     eliminated: number[];
+    players: string[];
 };
 
-function PublicBoard({ cards, revealed, eliminated }: PublicBoardProps) {
+function PublicBoard({ cards, revealed, eliminated, players }: PublicBoardProps) {
     return (
         <div className="w-full flex flex-col gap-2">
             <p className="text-[rgba(184,159,255,0.5)] text-xs uppercase tracking-widest px-1">
@@ -210,6 +213,7 @@ function PublicBoard({ cards, revealed, eliminated }: PublicBoardProps) {
                 const isOut = eliminated.includes(i);
                 const rev = revealed[i];
                 const shownFields = FIELDS.filter(f => rev[f.key] && f.getValue(card));
+                const name = players[i] ?? `Игрок ${i + 1}`;
                 return (
                     <div key={i} className={`w-full rounded-xl px-3 py-2.5 flex flex-col gap-1.5 border transition-all ${
                         isOut
@@ -218,7 +222,7 @@ function PublicBoard({ cards, revealed, eliminated }: PublicBoardProps) {
                     }`}>
                         <div className="flex items-center gap-2">
                             <p className={`text-xs font-bold uppercase tracking-wider ${isOut ? "text-red-400 line-through" : "text-[#b89fff]"}`}>
-                                Игрок {i + 1}
+                                {name}
                             </p>
                             {isOut && (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(220,50,50,0.2)] border border-[rgba(220,80,80,0.35)] text-red-400 font-semibold">
@@ -246,8 +250,8 @@ function PublicBoard({ cards, revealed, eliminated }: PublicBoardProps) {
 
 export default function Bunker({ slug }: { slug: string }) {
     const [phase, setPhase] = useState<Phase>("setup");
-    const [playersCountInput, setPlayersCountInput] = useState("");
-    const [playersCount, setPlayersCount] = useState<number | null>(null);
+    const [players, setPlayers] = useState<string[]>([]);
+    const [nameInput, setNameInput] = useState("");
     const [disaster, setDisaster] = useState("");
     const [bunker, setBunker] = useState("");
     const [cards, setCards] = useState<PlayerCard[]>([]);
@@ -259,8 +263,9 @@ export default function Bunker({ slug }: { slug: string }) {
     const [revealed, setRevealed] = useState<RevealedFields[]>([]);
     const [eliminated, setEliminated] = useState<number[]>([]);
 
+    const playersCount = players.length;
     const bunkerCapacity = playersCount ? Math.ceil(playersCount / 2) : 0;
-    const min_players = games.find(game => game.slug === slug)?.players_min;
+    const min_players = games.find(game => game.slug === slug)?.players_min ?? 4;
 
     useEffect(() => {
         if (timeLeft === null || timeLeft <= 0) return;
@@ -270,14 +275,23 @@ export default function Bunker({ slug }: { slug: string }) {
         return () => clearInterval(timer);
     }, [timeLeft]);
 
+    const handleAddPlayer = () => {
+        const name = nameInput.trim();
+        if (!name || players.includes(name)) return;
+        setPlayers(prev => [...prev, name]);
+        setNameInput("");
+    };
+
+    const handleRemovePlayer = (idx: number) => {
+        setPlayers(prev => prev.filter((_, i) => i !== idx));
+    };
+
     const handleConfirmPlayers = () => {
-        const n = Number(playersCountInput);
-        if (!n || n < 4) return;
-        setPlayersCount(n);
+        if (players.length < min_players) return;
         setDisaster(pick(disasters));
         setBunker(pick(bunkers));
-        setCards(Array.from({ length: n }, generateCard));
-        setRevealed(Array.from({ length: n }, defaultRevealed));
+        setCards(Array.from({ length: players.length }, generateCard));
+        setRevealed(Array.from({ length: players.length }, defaultRevealed));
         setPhase("catastrophe");
     };
 
@@ -299,8 +313,8 @@ export default function Bunker({ slug }: { slug: string }) {
 
     const handleReset = () => {
         setPhase("setup");
-        setPlayersCount(null);
-        setPlayersCountInput("");
+        setPlayers([]);
+        setNameInput("");
         setDisaster("");
         setBunker("");
         setCards([]);
@@ -341,25 +355,63 @@ export default function Bunker({ slug }: { slug: string }) {
 
                 {/* SETUP */}
                 {phase === "setup" && (
-                    <div className="w-full bg-[rgba(30,30,46,0.7)] border border-[rgba(140,100,255,0.2)] rounded-2xl p-6 flex flex-col gap-4">
-                        <p className="text-accent-light text-center text-lg font-semibold">Сколько игроков?</p>
-                        <p className="text-[rgba(184,159,255,0.5)] text-center text-sm">Минимум {min_players} игрока</p>
-                        <Input
-                            placeholder={`От ${min_players} и больше`}
-                            min={min_players}
-                            max={20}
-                            type="number"
-                            size="lg"
-                            value={playersCountInput}
-                            onChange={(val) => setPlayersCountInput(val)}
-                        />
+                    <div className="w-full flex flex-col gap-4">
+                        <div className="w-full bg-[rgba(30,30,46,0.7)] border border-[rgba(140,100,255,0.2)] rounded-2xl p-6 flex flex-col gap-4">
+                            <p className="text-accent-light text-center text-lg font-semibold">Добавьте игроков</p>
+                            <p className="text-[rgba(184,159,255,0.5)] text-center text-sm">Минимум {min_players} человека</p>
+
+                            <div className="flex gap-2 w-full">
+                                <div className="flex-1 min-w-0">
+                                    <Input
+                                        placeholder="Имя игрока"
+                                        type="text"
+                                        size="md"
+                                        value={nameInput}
+                                        onChange={(val) => setNameInput(val)}
+                                        className="w-full rounded-xl"
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleAddPlayer}
+                                    disabled={!nameInput.trim() || players.includes(nameInput.trim())}
+                                    className="shrink-0 w-12 rounded-xl font-bold text-lg bg-[rgba(107,65,231,0.85)] border border-[rgba(140,100,255,0.5)] text-white hover:bg-[rgba(120,80,245,0.95)] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                                >
+                                    +
+                                </button>
+                            </div>
+
+                            {players.length > 0 && (
+                                <div className="flex flex-col gap-1.5">
+                                    {players.map((name, i) => (
+                                        <div key={i} className="flex items-center justify-between px-3 py-2 rounded-xl bg-[rgba(140,100,255,0.08)] border border-[rgba(140,100,255,0.2)]">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[rgba(184,159,255,0.4)] text-xs w-4">{i + 1}.</span>
+                                                <span className="text-[rgba(220,210,255,0.9)] text-sm font-medium">{name}</span>
+                                            </div>
+                                            <button
+                                                onClick={() => handleRemovePlayer(i)}
+                                                className="text-[rgba(184,159,255,0.35)] hover:text-red-400 transition-colors cursor-pointer text-sm px-1"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         <Button
-                            text="Начать игру"
+                            text={`Начать игру`}
                             size="lg"
                             onClick={handleConfirmPlayers}
                             className="w-full"
-                            disabled={!playersCountInput || Number(playersCountInput) < 4}
+                            disabled={players.length < min_players}
                         />
+                        {players.length > 0 && players.length < min_players && (
+                            <p className="text-[rgba(184,159,255,0.4)] text-xs text-center">
+                                Добавьте ещё {min_players - players.length} игрока
+                            </p>
+                        )}
                     </div>
                 )}
 
@@ -407,9 +459,12 @@ export default function Bunker({ slug }: { slug: string }) {
                 {phase === "dealing" && (
                     <div className="w-full flex flex-col gap-4">
                         <div className="w-full bg-[rgba(30,30,46,0.7)] border border-[rgba(140,100,255,0.2)] rounded-2xl p-6 flex flex-col items-center gap-4">
-                            <p className="text-accent-muted text-sm uppercase tracking-widest">
-                                Игрок {dealIndex + 1} из {playersCount}
-                            </p>
+                            <div className="text-center">
+                                <p className="text-accent-muted text-sm uppercase tracking-widest">
+                                    {dealIndex + 1} из {playersCount}
+                                </p>
+                                <p className="text-[#b89fff] font-bold text-xl mt-0.5">{players[dealIndex]}</p>
+                            </div>
 
                             {!isCardRevealed ? (
                                 <button
@@ -421,7 +476,7 @@ export default function Bunker({ slug }: { slug: string }) {
                                     <p className="text-[rgba(184,159,255,0.4)] text-xs">Убедись, что другие не смотрят</p>
                                 </button>
                             ) : (
-                                <CharacterCard card={cards[dealIndex]} playerNum={dealIndex + 1} />
+                                <CharacterCard card={cards[dealIndex]} playerNum={dealIndex + 1} playerName={players[dealIndex]} />
                             )}
 
                             <p className="text-[rgba(184,159,255,0.35)] text-xs">Запомни карточку и передай телефон</p>
@@ -471,7 +526,7 @@ export default function Bunker({ slug }: { slug: string }) {
                         {/* Public board */}
                         {revealed.length > 0 && (
                             <div className="w-full bg-[rgba(30,30,46,0.7)] border border-[rgba(140,100,255,0.2)] rounded-2xl p-4">
-                                <PublicBoard cards={cards} revealed={revealed} eliminated={eliminated} />
+                                <PublicBoard cards={cards} revealed={revealed} eliminated={eliminated} players={players} />
                             </div>
                         )}
 
@@ -480,7 +535,7 @@ export default function Bunker({ slug }: { slug: string }) {
                             <div className="w-full bg-[rgba(30,30,46,0.7)] border border-[rgba(140,100,255,0.2)] rounded-2xl p-5 flex flex-col gap-1">
                                 <p className="text-accent-light text-center text-sm font-semibold">Карточки игроков</p>
                                 <p className="text-[rgba(184,159,255,0.4)] text-xs text-center">Открой данные о себе или выгоняйте игрока</p>
-                                <div className="grid grid-cols-5 gap-2">
+                                <div className="grid grid-cols-4 gap-2">
                                     {Array.from({ length: playersCount! }, (_, i) => {
                                         const isOut = eliminated.includes(i);
                                         const hasRevealed = revealed[i] && Object.values(revealed[i]).some(Boolean);
@@ -499,7 +554,7 @@ export default function Bunker({ slug }: { slug: string }) {
                                                         : "bg-[rgba(140,100,255,0.1)] border border-[rgba(140,100,255,0.25)] text-[#b89fff] hover:bg-[rgba(140,100,255,0.25)] hover:border-[rgba(140,100,255,0.5)]"
                                                 }`}
                                             >
-                                                {isOut ? "☠️" : i + 1}
+                                                {isOut ? "☠️" : <span className="text-[11px] text-center leading-tight px-0.5 truncate w-full">{players[i]}</span>}
                                                 {!isOut && hasRevealed && <span className="text-[8px] leading-none opacity-70">👁</span>}
                                             </button>
                                         );
@@ -508,50 +563,52 @@ export default function Bunker({ slug }: { slug: string }) {
                             </div>
                         ) : (
                             <div className="w-full bg-[rgba(30,30,46,0.7)] border border-[rgba(140,100,255,0.2)] rounded-2xl p-5 flex flex-col gap-4">
+                                <div className="flex items-center justify-between gap-2">
+                                    <button
+                                        onClick={() => setViewingPlayer(null)}
+                                        className="text-[rgba(184,159,255,0.4)] text-sm hover:text-[#b89fff] transition-colors cursor-pointer"
+                                    >
+                                        ← Назад
+                                    </button>
+                                    {viewingPlayer !== null && (
+                                        eliminated.includes(viewingPlayer) ? (
+                                            <button
+                                                onClick={() => setEliminated(prev => prev.filter(idx => idx !== viewingPlayer))}
+                                                className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[rgba(140,100,255,0.3)] bg-[rgba(140,100,255,0.08)] text-[rgba(184,159,255,0.6)] hover:bg-[rgba(140,100,255,0.15)] transition-all cursor-pointer"
+                                            >
+                                                ↩ Вернуть
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => {
+                                                    setEliminated(prev => [...prev, viewingPlayer]);
+                                                    setViewingPlayer(null);
+                                                }}
+                                                className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-[rgba(220,80,80,0.4)] bg-[rgba(220,50,50,0.1)] text-red-400 hover:bg-[rgba(220,50,50,0.2)] hover:border-[rgba(220,80,80,0.6)] transition-all cursor-pointer"
+                                            >
+                                                ☠️ Выгнать
+                                            </button>
+                                        )
+                                    )}
+                                </div>
+
                                 {!isViewCardRevealed ? (
                                     <button
                                         onClick={() => setIsViewCardRevealed(true)}
                                         className="w-full rounded-xl p-6 flex flex-col items-center gap-3 bg-[rgba(140,100,255,0.08)] border border-dashed border-[rgba(140,100,255,0.35)] hover:bg-[rgba(140,100,255,0.15)] transition-all cursor-pointer"
                                     >
                                         <span className="text-3xl">🃏</span>
-                                        <p className="text-[#b89fff] font-semibold">Показать карточку игрока {viewingPlayer + 1}</p>
+                                        <p className="text-[#b89fff] font-semibold">Показать карточку — {players[viewingPlayer]}</p>
                                         <p className="text-[rgba(184,159,255,0.4)] text-xs">Убедись, что другие не смотрят</p>
                                     </button>
                                 ) : (
                                     <InteractiveCharacterCard
                                         card={cards[viewingPlayer]}
                                         playerNum={viewingPlayer + 1}
+                                        playerName={players[viewingPlayer]}
                                         revealed={revealed[viewingPlayer]}
                                         onToggle={(field) => toggleReveal(viewingPlayer, field)}
                                     />
-                                )}
-                                <button
-                                    onClick={() => setViewingPlayer(null)}
-                                    className="text-[rgba(184,159,255,0.4)] text-sm hover:text-[#b89fff] transition-colors cursor-pointer text-center"
-                                >
-                                    ← Закрыть карточку
-                                </button>
-                                {viewingPlayer !== null && (
-                                    eliminated.includes(viewingPlayer) ? (
-                                        <button
-                                            onClick={() => {
-                                                setEliminated(prev => prev.filter(idx => idx !== viewingPlayer));
-                                            }}
-                                            className="w-full py-2.5 rounded-xl text-sm font-semibold border border-[rgba(140,100,255,0.3)] bg-[rgba(140,100,255,0.08)] text-[rgba(184,159,255,0.6)] hover:bg-[rgba(140,100,255,0.15)] transition-all cursor-pointer"
-                                        >
-                                            ↩ Вернуть в игру
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => {
-                                                setEliminated(prev => [...prev, viewingPlayer]);
-                                                setViewingPlayer(null);
-                                            }}
-                                            className="w-full py-2.5 rounded-xl text-sm font-semibold border border-[rgba(220,80,80,0.4)] bg-[rgba(220,50,50,0.1)] text-red-400 hover:bg-[rgba(220,50,50,0.2)] hover:border-[rgba(220,80,80,0.6)] transition-all cursor-pointer"
-                                        >
-                                            ☠️ Выгнать из бункера
-                                        </button>
-                                    )
                                 )}
                             </div>
                         )}
