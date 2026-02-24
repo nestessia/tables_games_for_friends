@@ -21,8 +21,15 @@ export const games: Game[] = [
         title: "Alias",
         description: "Объясняй как можно больше слов и зарабатывай очки!",
         players_min: 2,
-        icon: "💬",
+        icon: "👾",
         slug: "alias",
+    },
+    {
+        title: "Бункер",
+        description: "Докажи, что ты должен попасть в бункер",
+        players_min: 5,
+        icon: "☢️",
+        slug: "bunker",
     },
     // {
     //     title: "Имаджинариум",
@@ -50,6 +57,7 @@ const gameComponents: Record<string, ComponentType<{ slug: string }>> = {
     mafia: dynamic(() => import('@/components/games/mafia')),
     imagination: dynamic(() => import('@/components/games/imagination')),
     alias: dynamic(() => import('@/components/games/alias')),
+    bunker: dynamic(() => import('@/components/games/bunker')),
 };
 
 export function getGameComponent(slug: string): ComponentType<{ slug: string }> {
