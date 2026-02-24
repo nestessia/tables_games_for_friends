@@ -63,7 +63,7 @@ export default function Input({
     }, [value]);
 
     return (
-        <div className={`flex flex-col`}>
+        <div className="flex flex-col w-full">
             <input
                 type={type}
                 className={`${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
