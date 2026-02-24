@@ -262,6 +262,8 @@ export default function Bunker({ slug }: { slug: string }) {
     const [isViewCardRevealed, setIsViewCardRevealed] = useState(false);
     const [revealed, setRevealed] = useState<RevealedFields[]>([]);
     const [eliminated, setEliminated] = useState<number[]>([]);
+    const [disasterExpanded, setDisasterExpanded] = useState(false);
+    const [bunkerExpanded, setBunkerExpanded] = useState(false);
 
     const playersCount = players.length;
     const bunkerCapacity = playersCount ? Math.ceil(playersCount / 2) : 0;
@@ -479,7 +481,7 @@ export default function Bunker({ slug }: { slug: string }) {
                                 <CharacterCard card={cards[dealIndex]} playerNum={dealIndex + 1} playerName={players[dealIndex]} />
                             )}
 
-                            <p className="text-[rgba(184,159,255,0.35)] text-xs">Запомни карточку и передай телефон</p>
+                            <p className="text-[rgba(184,159,255,0.35)] text-xs">Запомни карточку, нажми следующий игрок и передай телефон</p>
                         </div>
 
                         <Button
@@ -501,7 +503,15 @@ export default function Bunker({ slug }: { slug: string }) {
                                     <span className="text-lg">🌍</span>
                                     <p className="text-red-400 font-bold text-sm uppercase tracking-wide">Катастрофа</p>
                                 </div>
-                                <p className="text-[rgba(220,210,255,0.8)] text-xs leading-relaxed line-clamp-4">{disaster}</p>
+                                <p className={`text-[rgba(220,210,255,0.8)] text-xs leading-relaxed ${disasterExpanded ? "" : "line-clamp-4"}`}>
+                                    {disaster}
+                                </p>
+                                <button
+                                    onClick={() => setDisasterExpanded(v => !v)}
+                                    className="self-start text-[rgba(184,159,255,0.5)] text-[10px] hover:text-[#b89fff] transition-colors cursor-pointer"
+                                >
+                                    {disasterExpanded ? "Свернуть ↑" : "Читать ↓"}
+                                </button>
                             </div>
 
                             <div className="bg-[rgba(30,30,46,0.7)] border border-[rgba(140,100,255,0.2)] rounded-2xl p-4 flex flex-col gap-2">
@@ -509,7 +519,15 @@ export default function Bunker({ slug }: { slug: string }) {
                                     <span className="text-lg">🏠</span>
                                     <p className="text-[#b89fff] font-bold text-sm">Бункер</p>
                                 </div>
-                                <p className="text-[rgba(220,210,255,0.8)] text-xs leading-relaxed line-clamp-3">{bunker}</p>
+                                <p className={`text-[rgba(220,210,255,0.8)] text-xs leading-relaxed ${bunkerExpanded ? "" : "line-clamp-3"}`}>
+                                    {bunker}
+                                </p>
+                                <button
+                                    onClick={() => setBunkerExpanded(v => !v)}
+                                    className="self-start text-[rgba(184,159,255,0.5)] text-[10px] hover:text-[#b89fff] transition-colors cursor-pointer"
+                                >
+                                    {bunkerExpanded ? "Свернуть ↑" : "Читать ↓"}
+                                </button>
                                 <div className="mt-auto pt-1 flex items-center justify-between">
                                     <span className="text-[rgba(184,159,255,0.5)] text-xs">👥 мест</span>
                                     <span className={`font-bold text-sm ${
